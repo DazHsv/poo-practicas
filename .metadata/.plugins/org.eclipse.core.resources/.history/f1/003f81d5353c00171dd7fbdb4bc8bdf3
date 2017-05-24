@@ -1,0 +1,10 @@
+package main;
+
+import javax.swing.JFrame;
+
+public class Main {
+	public static void main(String[] args) {
+		MainWindow mw = new MainWindow("Editor de notas", 200, 300, 200, 300, JFrame.EXIT_ON_CLOSE);
+		mw.setVisible(true);
+	}
+}

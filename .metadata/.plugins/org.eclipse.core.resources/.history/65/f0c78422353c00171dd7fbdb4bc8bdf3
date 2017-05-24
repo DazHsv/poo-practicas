@@ -1,0 +1,53 @@
+package main;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
+@SuppressWarnings("serial")
+public class MainWindow extends JFrame {
+	private ContentPanel content;
+	
+	public MainWindow(String title, int height, int width, int x, int y, int defaultCloseOperation) {
+		setTitle(title);
+		setBounds(x, y, width, height);
+		setDefaultCloseOperation(defaultCloseOperation);
+		
+		content = new ContentPanel(10, 10);
+		content.setBounds(x, y + 100, width, height);
+		
+		add(content);
+	}
+	
+	private class ContentPanel extends JPanel {
+		protected ButtonPanel buttonPanel;
+		protected JTextArea fileBody;
+		
+		public ContentPanel(int rows, int columns) {
+			setLayout(new BorderLayout());
+			
+			buttonPanel = new ButtonPanel();
+			fileBody = new JTextArea(rows, columns);
+			
+			add(buttonPanel);
+			add(fileBody);
+		}
+	}
+	
+	private class ButtonPanel extends JPanel {
+		private JButton create, open, save;
+		
+		public ButtonPanel() {
+			create = new JButton("Nuevo");
+			open = new JButton("Abrir");
+			save = new JButton("Guardar");
+			
+			add(create);
+			add(open);
+			add(save);
+		}
+	}
+}

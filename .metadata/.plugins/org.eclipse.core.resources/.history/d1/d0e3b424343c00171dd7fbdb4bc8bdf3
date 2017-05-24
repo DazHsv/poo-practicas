@@ -1,0 +1,29 @@
+package main;
+
+import javax.swing.*;
+
+@SuppressWarnings("serial")
+public class MainWindow extends JFrame {
+	private ContentPanel content;
+	
+	public MainWindow(String title, int height, int width, int x, int y, int defaultCloseOperation) {
+		setTitle(title);
+		setBounds(x, y, width, height);
+		setDefaultCloseOperation(defaultCloseOperation);
+		
+		content = new ContentPanel(width, height);
+		content.setBounds(x, y, width, height);
+		
+		add(content);
+	}
+	
+	private class ContentPanel extends JScrollPane {
+		protected JTextArea fileBody;
+		
+		public ContentPanel(int rows, int columns) {
+			fileBody = new JTextArea(rows, columns);
+			
+			add(fileBody);
+		}
+	}
+}

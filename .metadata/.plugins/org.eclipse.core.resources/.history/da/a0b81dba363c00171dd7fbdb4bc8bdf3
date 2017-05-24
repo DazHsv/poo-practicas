@@ -1,0 +1,15 @@
+package main;
+
+import java.awt.*;
+
+import javax.swing.*;
+
+@SuppressWarnings("serial")
+public class MainWindow extends JFrame {
+	
+	
+	public MainWindow(String title, int x, int y, int width, int height) {
+		setTitle(title);
+		setBounds(x, y, width, height);
+	}
+}

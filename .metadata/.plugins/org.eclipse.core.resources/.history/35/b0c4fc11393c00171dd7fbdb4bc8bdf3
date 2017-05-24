@@ -1,0 +1,42 @@
+package main;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+
+import javax.swing.*;
+
+@SuppressWarnings("serial")
+public class MainWindow extends JFrame {
+	
+	/**
+	 * Creates a Frame with the given values 
+	 * */
+	public MainWindow(String title, int x, int y, int width, int height) {
+		setTitle(title);
+		setBounds(x, y, width, height);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
+	
+	/**
+	 * Creates an auto sized centered Frame
+	 * */
+	public MainWindow(String title) {
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		setTitle(title);
+		setBounds(screen.width / 4, screen.height / 4, screen.width / 2, screen.height / 2);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		MainPanel mp = new MainPanel();
+		
+		add(mp);
+	}
+	
+	private class MainPanel extends JPanel {
+		
+		public MainPanel() {
+			setBackground(SystemColor.window);
+		}
+	}
+}

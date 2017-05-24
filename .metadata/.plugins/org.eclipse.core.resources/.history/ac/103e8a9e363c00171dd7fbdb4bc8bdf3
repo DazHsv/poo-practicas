@@ -1,0 +1,10 @@
+package main;
+
+import java.awt.*;
+
+import javax.swing.*;
+
+@SuppressWarnings("serial")
+public class MainWindow extends JFrame {
+	
+}

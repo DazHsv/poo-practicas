@@ -1,0 +1,40 @@
+package main;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import javax.swing.*;
+
+@SuppressWarnings("serial")
+public class MainWindow extends JFrame {
+	
+	public MainWindow(String title, int x, int y, int width, int height) {
+		setTitle(title);
+		setBounds(x, y, width, height);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+	}
+	
+	public MainWindow(String title, boolean centered, int width, int height) {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screen = tk.getScreenSize();
+		
+		setTitle(title);
+		setBounds(screen.width / 4, screen.height / 4, width, height);
+	}
+	
+	public MainWindow(String title, int x, int y) {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screen = tk.getScreenSize();
+		
+		setTitle(title);
+		setBounds(x, y, screen.width / 2, screen.height / 2);
+	}
+	
+	public MainWindow(String title) {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screen = tk.getScreenSize();
+		
+		setTitle(title);
+		setBounds(screen.width / 4, screen.height / 4, screen.width / 2, screen.height / 2);
+	}
+}
