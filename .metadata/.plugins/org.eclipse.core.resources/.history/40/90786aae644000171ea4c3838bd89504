@@ -1,0 +1,271 @@
+package main;
+
+/**
+ * @author Hugo Sanchez Velazquez
+ * 2g3B
+ * 
+ * Lista de tareas
+ * @version 1.0
+ * */
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+
+public class MainFrame extends JFrame{
+	private static final long serialVersionUID = -6121230978061188801L;
+	private JPanel lists, labels, input;
+	private JScrollPane left, right;
+	private JTextPane todo, didit; 
+	private JTextField cmd;
+	private JButton exec, info;
+	private MainFrame mf = this;
+	private Image icon;
+	
+	private ArrayList<Task> tasks;
+
+	public MainFrame(String title, int dco, ArrayList<Task> cachedItems) {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension d = tk.getScreenSize();
+		GridLayout gl = new GridLayout(0,2);
+		icon = tk.getImage(FileHelper.ICON);
+		Font font = new Font("Arial", Font.PLAIN, 14);
+		
+		tasks = cachedItems;
+		
+		setBounds(d.width / 3, d.height / 4, d.width / 3, d.height / 2);
+		setTitle(title);
+		setResizable(false);
+		setDefaultCloseOperation(dco);
+		setLayout(new BorderLayout());
+		setIconImage(icon);
+		setBackground(Color.WHITE);
+		
+		labels = new JPanel(gl);
+		lists = new JPanel(gl);
+		input = new JPanel(new BorderLayout());
+		todo = new JTextPane();
+		didit = new JTextPane();
+		info = new JButton("?");
+		cmd = new JTextField();
+		exec = new JButton("Exec");
+		left = new JScrollPane(todo, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		right = new JScrollPane(didit, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		todo.setFont(font);
+		todo.setBackground(Color.DARK_GRAY);
+		todo.setForeground(Color.GREEN);
+		todo.setToolTipText("Tareas por realizar");
+		todo.setEditable(false);
+		
+		didit.setFont(font);
+		didit.setBackground(Color.DARK_GRAY);
+		didit.setForeground(Color.WHITE);
+		didit.setToolTipText("Tareas realizadas");
+		didit.setEditable(false);
+		
+		info.setFont(font);
+		info.setToolTipText("Ayudad");
+		cmd.setFont(font);
+		cmd.setToolTipText("Ingrese su comando aqui");
+		exec.setFont(font);
+		exec.setToolTipText("Ejecutar el comando");
+		
+		left.setViewportView(todo);
+		right.setViewportView(didit);
+		
+		JLabel todoLabel = new JLabel("Tareas por realizar:"),
+				didLabel = new JLabel("Tareas realizadas:");
+		todoLabel.setFont(font);
+		didLabel.setFont(font);
+		
+		labels.add(todoLabel);
+		labels.add(didLabel);
+		lists.add(left);
+		lists.add(right);
+		input.add(info, BorderLayout.LINE_START);
+		input.add(cmd, BorderLayout.CENTER);
+		input.add(exec, BorderLayout.LINE_END);
+		
+		add(labels, BorderLayout.PAGE_START);
+		add(lists, BorderLayout.CENTER);
+		add(input, BorderLayout.PAGE_END);
+		
+		refreshView(tasks);
+		exec.addActionListener(new Command());
+		info.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String inf = "Comandos:\n"
+						+Command.ADD+" [nombre_tarea]\n"
+						+Command.RENAME+" [id] [nuevo_nombre]\n"
+						+Command.DID+" [id_tarea]\n"
+						+Command.DID_ALL+"\n"
+						+Command.DEL+" [id_tarea]\n"
+						+Command.DEL_ALL+"\n"
+						+Command.SAVE+"\n"
+						+Command.RESTORE+"\n"
+						+Command.EXIT;
+				JOptionPane.showMessageDialog(mf, inf, "Comandos", JOptionPane.INFORMATION_MESSAGE);
+			}
+			
+		});
+		
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+		        if(JOptionPane.showConfirmDialog(mf,"¿Seguro que desea salir?",
+						"Salir", JOptionPane.YES_NO_OPTION,
+						JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
+		        	save(FileHelper.FILENAME, true);
+		        }
+		    }
+		});
+	}
+	
+	/*public void addItems(ArrayList<Item> i) {
+		items.ensureCapacity(i.size());
+		items.addAll(i);
+	}
+	
+	public ArrayList<Item> getItems() {
+		return items;
+	}*/
+	
+	private boolean wasAdded(String i) {
+		for (Task item : tasks) {
+			if(i.equalsIgnoreCase(item.getName()))
+				return true;
+		}
+		return false;
+	}
+	
+	private void refreshView(ArrayList<Task> i) {
+		int id = 0;
+		didit.setText("");
+		todo.setText(""); 
+		cmd.setText("");
+		for (Task item : i) {
+			if(item.wasDidIt()) {
+				didit.setText(String.format("%s[%d] %s%n", didit.getText(), id, item.getName()));
+			} else {
+				todo.setText(String.format("%s[%d] %s%n", todo.getText(), id, item.getName()));
+			}
+			id++;
+		}
+		cmd.requestFocusInWindow();
+	}
+	
+	private void save(String fn, boolean exit) {
+		try {
+			int index = 0;
+			Task[] itemsToSave = new Task[tasks.size()];
+			for (Task i : tasks) {
+				itemsToSave[index] = i;
+				index++;
+			}
+			FileHelper.writeTo(itemsToSave, fn);
+			if(exit) {
+				File f = new File(FileHelper.BACKUP_FILENAME);
+				f.delete();
+				System.exit(0);
+			}
+		} catch (IOException ioe) {
+			JOptionPane.showMessageDialog(mf, "Error guardando el archivo.", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	private class Command implements ActionListener {
+		public static final String ADD = "add";
+		public static final String DID = "did";
+		public static final String DID_ALL = "did-all";
+		public static final String DEL = "delete";
+		public static final String DEL_ALL = "delete-all";
+		public static final String SAVE = "save";
+		public static final String RESTORE = "restore";
+		public static final String RENAME = "rename";
+		public static final String EXIT = "exit";
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String[] command = cmd.getText().split(" ");
+			String param = null;
+			if(!command[0].equals(RENAME))
+				param = String.join(" ", command).substring(command[0].length()).trim();
+			int id;
+			switch(command[0].trim()) {
+				case ADD:
+					if(!wasAdded(param))
+						tasks.add(new Task(param));
+					else
+						JOptionPane.showMessageDialog(mf, "La tarea ya fue agregada", "Tarea existente", JOptionPane.WARNING_MESSAGE);
+					break;
+				case DID:
+					id = Integer.parseInt(param.trim());
+					tasks.set(id, tasks.get(id).did());
+					break;
+				case DID_ALL:
+					int i = 0;
+					for (Task it : tasks) {
+						tasks.set(i, it.did());
+						i++;
+					}
+					break;
+				case DEL:
+					id = Integer.parseInt(param.trim());
+					tasks.remove(id);
+					break;
+				case DEL_ALL:
+					if(JOptionPane.showConfirmDialog(mf,"¿Seguro que desea borrar todos los elementos?",
+							"Borrar todos los elementos", JOptionPane.YES_NO_OPTION,
+							JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
+						save(FileHelper.BACKUP_FILENAME,false);
+						tasks.clear();
+					}
+					break;
+				case RENAME:
+					id = Integer.parseInt(command[1]);
+					param = String.join(" ", command).substring(command[0].length() + command[1].length() + 2).trim();
+					tasks.set(id, tasks.get(id).rename(param));
+					break;
+				case SAVE:
+					save(FileHelper.FILENAME,false);
+					break;
+				case RESTORE:
+					try {
+						tasks.add(FileHelper.readFrom(FileHelper.BACKUP_FILENAME));
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(mf, "Error obteniendo datos.", "Error con archivo", JOptionPane.ERROR_MESSAGE);
+					}
+					break;
+				case EXIT:
+					save(FileHelper.FILENAME,true);
+					break;
+				default:
+					JOptionPane.showMessageDialog(mf, "Comando invalido.", "Error en comando.", JOptionPane.ERROR_MESSAGE);
+			}
+			refreshView(tasks);
+		}
+		
+	}
+}

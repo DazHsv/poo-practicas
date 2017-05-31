@@ -1,0 +1,20 @@
+import javax.swing.JOptionPane;
+
+public class Hp extends Computadora implements Salida {
+	private double pIva;
+	public Hp(String marca, double P, double e) {
+		super(marca, P);
+		this.pIva=e;
+	}
+
+	@Override
+	public void Calcular() {
+		this.pIva=(this.P*(0.10));
+		
+	}
+	
+	public void Imprimir(){
+		JOptionPane.showMessageDialog(null,"El precio del producto es: $"+P+"El iva del producto es: $"+pIva+"El precio total es de: $"+(P+pIva));
+	}
+
+}
